@@ -1,0 +1,8 @@
+export default function Sidebar() {
+  return (
+    <div>
+      <h2>Sidebar</h2>
+      {/* Сюди потім додасте елементи бокового меню */}
+    </div>
+  );
+}
