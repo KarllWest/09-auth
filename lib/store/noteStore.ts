@@ -1,17 +1,21 @@
-export const noteStore = {
-  notes: [] as Note[],
-  addNote(note: Note) {
-    this.notes.push(note);
-  },
-  getNotes() {
-    return this.notes;
-  },
-};
+import { create } from "zustand";
 
-export type Note = {
-  id: string;
+interface NoteDraft {
   title: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
+  tag: string;
+}
+
+interface NoteStoreState {
+  draft: NoteDraft;
+  setDraft: (draft: Partial<NoteDraft>) => void;
+  resetDraft: () => void;
+}
+
+const initialDraft: NoteDraft = { title: "", content: "", tag: "" };
+
+export const useNoteStore = create<NoteStoreState>((set) => ({
+  draft: initialDraft,
+  setDraft: (draft) => set((state) => ({ draft: { ...state.draft, ...draft } })),
+  resetDraft: () => set({ draft: initialDraft }),
+}));

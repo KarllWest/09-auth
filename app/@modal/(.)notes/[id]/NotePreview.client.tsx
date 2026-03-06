@@ -13,7 +13,7 @@ export default function NotePreviewClient({ id }: { id: string }) {
   });
 
   return (
-    <Modal>
+    <Modal onClose={() => router.back()}>
       <button onClick={() => router.back()}>Close</button>
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error loading note</p>}
@@ -21,7 +21,7 @@ export default function NotePreviewClient({ id }: { id: string }) {
         <div>
           <h2>{note.title}</h2>
           <p>{note.content}</p>
-          {note.tag && <span>{note.tag}</span>}
+          <span>{note.tag}</span>
         </div>
       )}
     </Modal>

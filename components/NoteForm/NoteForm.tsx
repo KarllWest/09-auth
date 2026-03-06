@@ -1,26 +1,28 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createNote } from "@/lib/api/clientApi";
+import { useNoteStore } from "@/lib/store/noteStore";
 
-interface NoteFormData {
-  title: string;
-  content: string;
-  tag: string;
-}
+export default function NoteForm() {
+  const router = useRouter();
+  const { draft, setDraft, resetDraft } = useNoteStore();
+  const queryClient = useQueryClient();
 
-interface NoteFormProps {
-  onSubmit: (data: NoteFormData) => void;
-  initialData?: Partial<NoteFormData>;
-}
-
-export default function NoteForm({ onSubmit, initialData = {} }: NoteFormProps) {
-  const [title, setTitle] = useState(initialData.title ?? "");
-  const [content, setContent] = useState(initialData.content ?? "");
-  const [tag, setTag] = useState(initialData.tag ?? "");
+  const { mutate, isPending } = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      resetDraft();
+      router.back();
+    },
+  });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit({ title, content, tag });
+    mutate(draft);
   };
 
   return (
@@ -28,26 +30,36 @@ export default function NoteForm({ onSubmit, initialData = {} }: NoteFormProps) 
       <input
         name="title"
         type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        value={draft.title}
+        onChange={(e) => setDraft({ title: e.target.value })}
         placeholder="Title"
         required
       />
       <textarea
         name="content"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
+        value={draft.content}
+        onChange={(e) => setDraft({ content: e.target.value })}
         placeholder="Content"
         required
       />
-      <input
+      <select
         name="tag"
-        type="text"
-        value={tag}
-        onChange={(e) => setTag(e.target.value)}
-        placeholder="Tag"
-      />
-      <button type="submit">Save</button>
+        value={draft.tag}
+        onChange={(e) => setDraft({ tag: e.target.value })}
+      >
+        <option value="">Select tag</option>
+        <option value="Todo">Todo</option>
+        <option value="Work">Work</option>
+        <option value="Personal">Personal</option>
+        <option value="Meeting">Meeting</option>
+        <option value="Shopping">Shopping</option>
+      </select>
+      <button type="button" onClick={() => router.back()}>
+        Cancel
+      </button>
+      <button type="submit" disabled={isPending}>
+        Save
+      </button>
     </form>
   );
 }
