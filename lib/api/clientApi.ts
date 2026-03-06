@@ -1,5 +1,6 @@
 import axiosInstance from "./api";
 import { User } from "@/types/user";
+import { Note } from "@/types/note";
 
 interface AuthCredentials {
   email: string;
@@ -8,13 +9,6 @@ interface AuthCredentials {
 
 interface AuthResponse {
   user: User;
-}
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: string;
 }
 
 interface FetchNotesParams {
@@ -59,23 +53,23 @@ export const register = async (
   credentials: AuthCredentials
 ): Promise<AuthResponse> => {
   const { data } = await axiosInstance.post("/auth/register", credentials);
-  return data;
+  return { user: data };
 };
 
 export const login = async (
   credentials: AuthCredentials
 ): Promise<AuthResponse> => {
   const { data } = await axiosInstance.post("/auth/login", credentials);
-  return data;
+  return { user: data };
 };
 
 export const logout = async (): Promise<void> => {
   await axiosInstance.post("/auth/logout");
 };
 
-export const checkSession = async (): Promise<User | null> => {
+export const checkSession = async (): Promise<boolean> => {
   const { data } = await axiosInstance.get("/auth/session");
-  return data ?? null;
+  return data?.success === true;
 };
 
 export const getMe = async (): Promise<User> => {

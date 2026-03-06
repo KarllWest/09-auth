@@ -1,8 +1,25 @@
-export default function CreateNotePage() {
+import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { fetchNotes } from "@/lib/api/serverApi";
+import NotesClient from "./Notes.client";
+
+export default async function FilterPage({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const { slug } = await params;
+  const tag = slug[0] ?? "";
+
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["notes", { tag, page: 1, search: "" }],
+    queryFn: () => fetchNotes({ tag }),
+  });
+
   return (
-    <div>
-      <h1>Create New Note</h1>
-      {/* Сюди потім додасте форму створення нотатки */}
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotesClient tag={tag} />
+    </HydrationBoundary>
   );
 }

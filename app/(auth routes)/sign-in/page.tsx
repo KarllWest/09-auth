@@ -23,8 +23,13 @@ export default function SignInPage() {
       const response = await login({ email, password });
       setUser(response.user);
       router.push("/profile");
-    } catch {
-      setError("Invalid email or password. Please try again.");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { response?: { message?: string }; error?: string } } })
+          ?.response?.data?.response?.message ||
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ||
+        "Invalid email or password. Please try again.";
+      setError(msg);
     }
   };
 

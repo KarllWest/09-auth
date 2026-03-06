@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getMe, updateMe } from "@/lib/api/clientApi";
 import { User } from "@/types/user";
+import { useAuthStore } from "@/lib/store/authStore";
 import css from "./page.module.css";
 
 export default function EditProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState("");
   const router = useRouter();
+  const { setUser: setAuthUser } = useAuthStore();
 
   useEffect(() => {
     getMe()
@@ -24,7 +26,8 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await updateMe({ username });
+      const updatedUser = await updateMe({ username });
+      setAuthUser(updatedUser);
       router.push("/profile");
     } catch {
       // handle silently

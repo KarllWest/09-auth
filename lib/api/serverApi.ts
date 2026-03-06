@@ -1,15 +1,8 @@
-import axios from "axios";
+import axiosInstance from "./api";
 import { cookies } from "next/headers";
 import { User } from "@/types/user";
-
-const baseURL = process.env.NEXT_PUBLIC_API_URL + "/api";
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  tag: string;
-}
+import { Note } from "@/types/note";
+import { AxiosResponse } from "axios";
 
 interface FetchNotesParams {
   search?: string;
@@ -34,24 +27,23 @@ export const fetchNotes = async (
   params: FetchNotesParams = {}
 ): Promise<FetchNotesResponse> => {
   const headers = await getHeaders();
-  const { data } = await axios.get(`${baseURL}/notes`, { params, headers });
+  const { data } = await axiosInstance.get("/notes", { params, headers });
   return data;
 };
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const headers = await getHeaders();
-  const { data } = await axios.get(`${baseURL}/notes/${id}`, { headers });
+  const { data } = await axiosInstance.get(`/notes/${id}`, { headers });
   return data;
 };
 
 export const getMe = async (): Promise<User> => {
   const headers = await getHeaders();
-  const { data } = await axios.get(`${baseURL}/users/me`, { headers });
+  const { data } = await axiosInstance.get("/users/me", { headers });
   return data;
 };
 
-export const checkSession = async (): Promise<User | null> => {
+export const checkSession = async (): Promise<AxiosResponse> => {
   const headers = await getHeaders();
-  const { data } = await axios.get(`${baseURL}/auth/session`, { headers });
-  return data ?? null;
+  return await axiosInstance.get("/auth/session", { headers });
 };

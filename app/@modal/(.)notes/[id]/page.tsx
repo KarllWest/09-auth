@@ -1,14 +1,24 @@
-export default async function InterceptedNoteModal({ 
-  params 
-}: { 
-  params: Promise<{ id: string }> 
+import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { fetchNoteById } from "@/lib/api/serverApi";
+import NotePreviewClient from "./NotePreview.client";
+
+export default async function InterceptedNoteModal({
+  params,
+}: {
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
+  });
+
   return (
-    <div>
-      <h1>Intercepted Modal for Note {id}</h1>
-      {/* Сюди пізніше додасте компонент Modal та NotePreview */}
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotePreviewClient id={id} />
+    </HydrationBoundary>
   );
 }

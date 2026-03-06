@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/store/authStore";
-import { checkSession, logout } from "@/lib/api/clientApi";
+import { checkSession, getMe, logout } from "@/lib/api/clientApi";
 
 const PRIVATE_PATHS = ["/profile", "/notes"];
 
@@ -25,8 +25,9 @@ export default function AuthProvider({
     const verify = async () => {
       setLoading(true);
       try {
-        const user = await checkSession();
-        if (user) {
+        const session = await checkSession();
+        if (session) {
+          const user = await getMe();
           setUser(user);
         } else {
           clearIsAuthenticated();
